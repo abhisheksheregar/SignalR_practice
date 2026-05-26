@@ -1,6 +1,5 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
@@ -10,22 +9,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy =>
     {
         policy
-            .SetIsOriginAllowed(_ => true)
+            .SetIsOriginAllowed(_ => true)   // allow any origin
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();   // important for SignalR
-    });
-});
-
-// CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowCredentials();             // needed for SignalR
     });
 });
 
@@ -36,13 +23,16 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+// optional while testing
+// app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");   // before auth/map
+app.UseRouting();
+
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<RealtimeHub>("/realtimehub");
 
-app.Run("http://0.0.0.0:8080");
+app.Run();
